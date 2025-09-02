@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formula Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .calculator {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      flex: 1;
+    }
+    h1 { text-align: center; color: #333; margin-bottom: 30px; }
+    .input-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      background: white;
+    }
+    input:focus, textarea:focus {
+      outline: none; border-color: #007bff; background: white;
+    }
+    textarea { height: 80px; resize: vertical; font-family: monospace; }
+    .variables { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+    .variable-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+    .var-name, .var-value { flex: 1; background: white !important; }
+    .btn-danger {
+      background-color: #dc3545; color: white; padding: 8px 12px; font-size: 14px;
+      border: none; border-radius: 5px; cursor: pointer; min-width: 80px;
+    }
+    .btn-secondary,
+    button {
+      background-color: #6c757d; color: white; padding: 12px 24px;
+      border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px;
+    }
+    button:hover { opacity: 0.9; }
+    .result {
+      background: #e8f5e8; padding: 20px; border-radius: 5px;
+      margin-top: 20px; text-align: center; border-left: 4px solid #28a745;
+    }
+    .result h3 { color: #155724; margin-bottom: 10px; }
+    .result-value { font-size: 24px; font-weight: bold; color: #155724; }
+    .error {
+      background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px;
+      margin-top: 20px; border-left: 4px solid #dc3545;
+    }
+    .warning {
+      background: #fff3cd; color: #856404; padding: 15px; border-radius: 5px;
+      margin-top: 15px; border-left: 4px solid #ffc107;
+    }
+    .examples {
+      background: #e7f3ff; padding: 15px; border-radius: 5px;
+      margin-top: 20px; border-left: 4px solid #007bff;
+    }
+    .examples h4 { color: #0056b3; margin-bottom: 10px; }
+    .examples ul { list-style-type: none; padding: 0; }
+    .examples li {
+      margin-bottom: 8px; font-family: monospace; color: #495057;
+      background: white; padding: 8px; border-radius: 3px;
+    }
+    footer.footer {
+      text-align: center;
+      padding: 15px 0;
+      background-color: #f1f1f1;
+      color: #555;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .variable-row { flex-direction: column; }
+      button { width: 100%; margin: 5px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>Formula Calculator</h1>
+    <div class="input-group">
+      <label for="formula">Formula:</label>
+      <textarea id="formula" placeholder="e.g., a*a + 2*a*b + b*b">a*a + 2*a*b + b*b</textarea>
+    </div>
+    <div class="variables">
+      <h3>Variables:</h3>
+      <div id="variableInputs">
+        <div class="variable-row">
+          <input type="text" placeholder="Variable name" class="var-name" value="a" />
+          <input type="number" placeholder="Value" class="var-value" step="any" value="3" />
+          <button type="button" class="btn-danger" onclick="removeVariable(this)">Remove</button>
+        </div>
+        <div class="variable-row">
+          <input type="text" placeholder="Variable name" class="var-name" value="b" />
+          <input type="number" placeholder="Value" class="var-value" step="any" value="2" />
+          <button type="button" class="btn-danger" onclick="removeVariable(this)">Remove</button>
+        </div>
+      </div>
+      <button type="button" class="btn-secondary" onclick="addVariable()">Add Variable</button>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="calculate()">Calculate</button>
+      <button class="btn-secondary" onclick="clearAll()">Clear All</button>
+    </div>
+    <div id="warning" class="warning" style="display:none;"></div>
+    <div id="result" class="result" style="display:none;">
+      <h3>Result:</h3>
+      <div class="result-value" id="resultValue">0</div>
+      <div id="calculation-steps" style="margin-top:10px; color:#666;"></div>
+    </div>
+    <div id="error" class="error" style="display:none;"></div>
+    <div class="examples">
+      <h4>Formula Examples:</h4>
+      <ul>
+        <li><strong>Perfect square:</strong> a*a + 2*a*b + b*b | a=3, b=2 → 25</li>
+        <li><strong>Area:</strong> length*width | length=10, width=5</li>
+        <li><strong>Sum:</strong> a + b | a=5, b=3</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © 2025 Projects By Debosmit (Universal Formula Calculator) . All rights reserved.
+  </footer>
+
+  <script>
+    let varCounter = 0;
+    function addVariable() {
+      const container = document.getElementById('variableInputs');
+      const newRow = document.createElement('div');
+      newRow.className = 'variable-row';
+      varCounter++;
+      const nameId = 'var-name-' + varCounter;
+      const valueId = 'var-value-' + varCounter;
+      newRow.innerHTML = `
+        <input type="text" id="${nameId}" placeholder="Variable name" class="var-name"/>
+        <input type="number" id="${valueId}" placeholder="Value" class="var-value" step="any"/>
+        <button type="button" class="btn-danger" onclick="removeVariable(this)">Remove</button>
+      `;
+      container.appendChild(newRow);
+      setTimeout(()=> document.getElementById(nameId).focus(),100);
+    }
+    function removeVariable(btn) {
+      const c = document.getElementById('variableInputs');
+      if (c.children.length > 1) btn.parentNode.remove();
+      else showError('At least one variable is required.');
+    }
+    function calculate() {
+      hideError(); hideResult(); hideWarning();
+      const formula = document.getElementById('formula').value.trim();
+      if (!formula) { showError('Enter a formula.'); return; }
+      const names = document.querySelectorAll('.var-name');
+      const vals  = document.querySelectorAll('.var-value');
+      const vars = {}, list = [];
+      for (let i=0;i<names.length;i++){
+        const n=names[i].value.trim(), v=vals[i].value.trim();
+        if(n&&v!==''){ const num=parseFloat(v);
+          if(!isNaN(num)){ vars[n]=num; list.push(`${n}=${num}`); } }
+      }
+      if(Object.keys(vars).length===0){ showError('Define variables and values.'); return; }
+      // warn on implicit multiplication
+      const bad= (formula.match(/\b\d*[A-Za-z]+\d*\b/g)||[])
+                    .filter(t=>!/^(sin|cos|tan|log|sqrt)$/.test(t));
+      if(bad.length) showWarning(`Implicit multiply in ${bad.join(',')}; use '*' explicitly.`);
+      let expr = formula;
+      Object.keys(vars).sort((a,b)=>b.length-a.length).forEach(n=>{
+        expr=expr.split(n).join(`(${vars[n]})`);
+      });
+      if(/[A-Za-z]/.test(expr)) { showError('Undefined variables remain.'); return; }
+      if(!/^[0-9+\-*/().\s]+$/.test(expr)){ showError('Invalid chars.'); return; }
+      try {
+        const res=eval(expr);
+        if(isNaN(res)||!isFinite(res)) throw '';
+        document.getElementById('resultValue').textContent = res;
+        document.getElementById('calculation-steps').innerHTML =
+          `<strong>Original:</strong> ${formula}<br>
+           <strong>Evaluated:</strong> ${expr}<br>
+           <strong>Variables:</strong> ${list.join(', ')}`;
+        document.getElementById('result').style.display = 'block';
+      } catch(e) {
+        showError('Calc error: ensure syntax is correct.');
+      }
+    }
+    function clearAll(){
+      document.getElementById('formula').value='';
+      document.querySelectorAll('.var-name,.var-value').forEach(i=>i.value='');
+      hideError(); hideResult(); hideWarning();
+    }
+    function showError(msg){
+      const e=document.getElementById('error');
+      e.textContent=msg; e.style.display='block';
+    }
+    function hideError(){ document.getElementById('error').style.display='none'; }
+    function showWarning(msg){
+      const w=document.getElementById('warning');
+      w.textContent=msg; w.style.display='block';
+    }
+    function hideWarning(){ document.getElementById('warning').style.display='none'; }
+    function hideResult(){ document.getElementById('result').style.display='none'; }
+    document.addEventListener('keydown',e=>{ if(e.ctrlKey&&e.key==='Enter') calculate(); });
+  </script>
+</body>
+</html>
